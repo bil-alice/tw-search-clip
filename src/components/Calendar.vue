@@ -193,7 +193,9 @@ export default {
           .map((item) => `list:${item}`)
           .join(" ")}`;
         this.searchConfig.text = `${_since} \n${_until} ${
-          _iFilter || _eFilter || _oFilter ? `\n${_iFilter} ${_eFilter} ${_oFilter}` : ""
+          _iFilter || _eFilter ? `\n${_iFilter} ${_eFilter}` : ""
+        } ${
+          _oFilter ? `\n${_oFilter}` : ""
         }`;
       },
       deep: true,
