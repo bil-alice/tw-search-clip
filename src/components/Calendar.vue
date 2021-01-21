@@ -111,6 +111,19 @@
                 <label for="retweets">retweets</label>
               </td>
             </tr>
+            <tr>
+              <td>Other:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  id="optlist"
+                  value=1350805148612771841
+                  v-model="searchConfig.filters.others"
+                  :checked="searchConfig.filters.others.includes('optlist')?true:false"
+                />
+                <label for="optlist">list</label>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -143,18 +156,19 @@ export default {
         date: {
           year: null,
           month: null,
-          day: null
+          day: null,
         },
         timeRange: {
           start: "00:00:00",
-          end: "00:00:00"
+          end: "00:00:00",
         },
         filters: {
           exclude: [],
-          include: []
-        }
+          include: [],
+          others: []
+        },
       },
-      history: null
+      history: null,
     };
   },
   watch: {
@@ -166,21 +180,24 @@ export default {
       }
     },
     searchConfig: {
-      handler: function() {
+      handler: function () {
         const _since = `since:${this.searchConfig.date.year}-${this.searchConfig.date.month}-${this.searchConfig.date.day}_${this.searchConfig.timeRange.start}_JST`;
         const _until = `until:${this.searchConfig.date.year}-${this.searchConfig.date.month}-${this.searchConfig.date.day}_${this.searchConfig.timeRange.end}_JST`;
         const _iFilter = `${this.searchConfig.filters.include
-          .map(item => `filter:${item}`)
+          .map((item) => `filter:${item}`)
           .join(" ")}`;
         const _eFilter = `${this.searchConfig.filters.exclude
-          .map(item => `-filter:${item}`)
+          .map((item) => `-filter:${item}`)
+          .join(" ")}`;
+        const _oFilter = `${this.searchConfig.filters.others
+          .map((item) => `list:${item}`)
           .join(" ")}`;
         this.searchConfig.text = `${_since} \n${_until} ${
-          _iFilter || _eFilter ? `\n${_iFilter} ${_eFilter}` : ""
+          _iFilter || _eFilter || _oFilter ? `\n${_iFilter} ${_eFilter} ${_oFilter}` : ""
         }`;
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   beforeMount() {
     this.history = localStorage.history;
@@ -202,7 +219,7 @@ export default {
       if (_hj.date && _hj.date.year && _hj.date.month && _hj.date.day) {
         this.searchConfig.date = _hj.date;
       }
-      if (_hj.filters && _hj.filters.include && _hj.filters.exclude) {
+      if (_hj.filters && _hj.filters.include && _hj.filters.exclude && _hj.filters.others) {
         this.searchConfig.filters = _hj.filters;
       }
       if (_hj.timeRange && _hj.timeRange.start && _hj.timeRange.end) {
@@ -217,17 +234,17 @@ export default {
     /**
      * カレンダー日付クリック時の処理
      */
-    dateClick: function(dayNum) {
+    dateClick: function (dayNum) {
       if (dayNum !== "") {
         this.day = dayNum;
       }
     },
-    setHistorysDay: function() {
+    setHistorysDay: function () {
       this.year = this.searchConfig.date.year;
       this.month = this.searchConfig.date.month;
       this.day = this.searchConfig.date.day;
     },
-    setToday: function() {
+    setToday: function () {
       if (
         this.year !== Number(this.today.split("-")[0]) ||
         this.month !== Number(this.today.split("-")[1])
@@ -242,7 +259,7 @@ export default {
      * 年、月は現在選択しているページ
      * 日は引数
      */
-    isToday: function(day) {
+    isToday: function (day) {
       var date = this.year + "-" + ("0" + this.month).slice(-2) + "-" + day;
       if (this.today === date) {
         return true;
@@ -252,7 +269,7 @@ export default {
     /**
      * 先月のカレンダーを取得
      */
-    setLastMonth: function() {
+    setLastMonth: function () {
       if (this.month === 1) {
         this.year--;
         this.month = 12;
@@ -264,7 +281,7 @@ export default {
     /**
      * 翌月のカレンダーを取得
      */
-    setNextMonth: function() {
+    setNextMonth: function () {
       if (this.month === 12) {
         this.year++;
         this.month = 1;
@@ -273,7 +290,7 @@ export default {
       }
       this.day = -1;
     },
-    changeTimeRange: function(e) {
+    changeTimeRange: function (e) {
       if (e.target.id === "set-am") {
         this.searchConfig.timeRange.start = "00:00:00";
         this.searchConfig.timeRange.end = "11:59:59";
@@ -282,47 +299,59 @@ export default {
         this.searchConfig.timeRange.end = "23:59:59";
       }
     },
-    copy: function() {
+    copy: function () {
       /* Get the text field */
       const copyText = document.getElementById("myInput").innerHTML;
       localStorage.history = JSON.stringify(this.searchConfig);
       /* Select the text field */
-      execCopy(copyText);
-      window.navigator.vibrate(100);
-      function execCopy(string) {
-        // 空div 生成
-        var tmp = document.createElement("div");
-        // 選択用のタグ生成
-        var pre = document.createElement("pre");
+      (async () => {
+        const ret = await execCopy(copyText);
+        if (ret) {
+          document.getElementById("myInput").classList.add("active");
+          setTimeout(() => {
+            document.getElementById("myInput").classList.remove("active");
+          }, 200);
+        }
+      })();
+      window.navigator.vibrate([100, 100, 100]);
+      async function execCopy(copyText) {
+        return navigator.clipboard.writeText(copyText).then(
+          () => true,
+          () => false
+        );
+        // // 空div 生成
+        // var tmp = document.createElement("div");
+        // // 選択用のタグ生成
+        // var pre = document.createElement("pre");
 
-        // 親要素のCSSで user-select: none だとコピーできないので書き換える
-        pre.style.webkitUserSelect = "auto";
-        pre.style.userSelect = "auto";
+        // // 親要素のCSSで user-select: none だとコピーできないので書き換える
+        // pre.style.webkitUserSelect = "auto";
+        // pre.style.userSelect = "auto";
 
-        tmp.appendChild(pre).textContent = string;
+        // tmp.appendChild(pre).textContent = string;
 
-        // 要素を画面外へ
-        var s = tmp.style;
-        s.position = "fixed";
-        s.right = "200%";
+        // // 要素を画面外へ
+        // var s = tmp.style;
+        // s.position = "fixed";
+        // s.right = "200%";
 
-        // body に追加
-        document.body.appendChild(tmp);
-        // 要素を選択
-        document.getSelection().selectAllChildren(tmp);
+        // // body に追加
+        // document.body.appendChild(tmp);
+        // // 要素を選択
+        // document.getSelection().selectAllChildren(tmp);
 
-        // クリップボードにコピー
-        var result = document.execCommand("copy");
+        // // クリップボードにコピー
+        // var result = document.execCommand("copy");
 
-        // 要素削除
-        document.body.removeChild(tmp);
+        // // 要素削除
+        // document.body.removeChild(tmp);
 
-        return result;
+        // return result;
       }
-    }
+    },
   },
   computed: {
-    calData: function() {
+    calData: function () {
       console.log(this.year + "-" + this.month + "のデータ作成");
       var calData = [];
       // 初日の曜日を取得
@@ -352,8 +381,8 @@ export default {
         calData.push(weekData);
       }
       return calData;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
@@ -455,7 +484,7 @@ input {
   margin-right: 1rem;
 }
 #myInput {
-  height: 3.6rem;
+  height: 4.8rem;
   padding: 0.2rem;
   font-size: 0.8rem;
   line-height: 1.2rem;
@@ -463,9 +492,14 @@ input {
   border: solid #636363;
   border-width: 0.2rem 0.05rem 0.05rem 0.05rem;
   box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.22);
-
   overflow: scroll;
 }
+#myInput.active {
+  border: solid rgb(230, 166, 221);
+  border-width: 0.2rem 0.05rem 0.05rem 0.05rem;
+  box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.22);
+}
+
 #copyBtn {
   padding: 0.25em 0.5em;
   color: #fff;
