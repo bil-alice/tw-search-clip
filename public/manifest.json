@@ -3,6 +3,6 @@
     "short_name": "Twitter-Search-Clip",
     "theme_color": "#2196f3",
     "background_color": "#2196f3",
-    "scope": "/",
-    "start_url": "/"
+    "scope": "/tw-search-clip/dist/index.html",
+    "start_url": "/tw-search-clip/dist/index.html"
 }
