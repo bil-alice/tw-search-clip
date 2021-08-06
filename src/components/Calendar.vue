@@ -178,8 +178,8 @@
         </p>
       </div>
     </div>
-    <button id="copyBtn" v-on:touchstart="copy()">Copy</button>
-    <button id="twitter" v-on:touchstart="launchTW()">Twitter</button>
+    <button id="copyBtn" v-on:touchend="copy()">Copy</button>
+    <button id="twitter" v-on:touchend="launchTW()">Twitter</button>
   </div>
 </template>
 <script>
@@ -394,6 +394,7 @@ export default {
         // return result;
       }
     },
+
     launchTW() {
       location.href = "twitter://search";
     },
