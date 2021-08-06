@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.2c6e78cdedf688c7e3259269730848dd.js"
+  "precache-manifest.dbd817fc9ee33d906e0d4213e2d50d9f.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "twitter-search-clip"});

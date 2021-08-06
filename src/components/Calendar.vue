@@ -3,7 +3,9 @@
     <!-- カレンダーヘッダ -->
     <div id="cal-header">
       <span class="header-arrow" v-on:touchstart="setLastMonth">＜</span>
-      <span class="selected-month">{{year}}/{{String(month).padStart(2, '0')}}</span>
+      <span class="selected-month"
+        >{{ year }}/{{ String(month).padStart(2, "0") }}</span
+      >
       <span class="header-arrow" v-on:touchstart="setNextMonth">＞</span>
     </div>
 
@@ -12,19 +14,28 @@
       <table id="cal-main">
         <!-- 曜日を表示させる（テーブルヘッダ） -->
         <thead>
-          <th v-for="(dayname,index) in weekdays" :key="index">{{dayname}}</th>
+          <th v-for="(dayname, index) in weekdays" :key="index">
+            {{ dayname }}
+          </th>
         </thead>
         <!-- 日付を表示させる（テーブルボディ） -->
         <tbody>
-          <tr v-for="(weekData,index) in calData" :key="index">
+          <tr v-for="(weekData, index) in calData" :key="index">
             <td
               class="cal-day"
-              v-for="(dayNum,index) in weekData"
+              v-for="(dayNum, index) in weekData"
               :key="index"
               v-on:touchstart="dateClick(dayNum)"
-              :class="{'cal-today': isToday(dayNum), active: day === dayNum || (month===searchConfig.date.month && year===searchConfig.date.year && dayNum===searchConfig.date.day)}"
+              :class="{
+                'cal-today': isToday(dayNum),
+                active:
+                  day === dayNum ||
+                  (month === searchConfig.date.month &&
+                    year === searchConfig.date.year &&
+                    dayNum === searchConfig.date.day),
+              }"
             >
-              <span>{{dayNum}}</span>
+              <span>{{ dayNum }}</span>
             </td>
           </tr>
         </tbody>
@@ -57,7 +68,12 @@
             name="set-ampm"
             value="AM"
             v-on:change="changeTimeRange"
-            :checked="searchConfig.timeRange.start==='00:00:00'&&searchConfig.timeRange.end==='11:59:59'?true:false"
+            :checked="
+              searchConfig.timeRange.start === '00:00:00' &&
+              searchConfig.timeRange.end === '11:59:59'
+                ? true
+                : false
+            "
           />
           <label for="AM">AM</label>
           <input
@@ -66,7 +82,12 @@
             name="set-ampm"
             value="PM"
             v-on:change="changeTimeRange"
-            :checked="searchConfig.timeRange.start==='12:00:00'&&searchConfig.timeRange.end==='23:59:59'?true:false"
+            :checked="
+              searchConfig.timeRange.start === '12:00:00' &&
+              searchConfig.timeRange.end === '23:59:59'
+                ? true
+                : false
+            "
           />
           <label for="PM">PM</label>
         </div>
@@ -85,7 +106,11 @@
                   id="follows"
                   value="follows"
                   v-model="searchConfig.filters.include"
-                  :checked="searchConfig.filters.include.includes('follows')?true:false"
+                  :checked="
+                    searchConfig.filters.include.includes('follows')
+                      ? true
+                      : false
+                  "
                 />
                 <label for="follows">follows</label>
               </td>
@@ -98,7 +123,11 @@
                   id="replies"
                   value="replies"
                   v-model="searchConfig.filters.exclude"
-                  :checked="searchConfig.filters.exclude.includes('replies')?true:false"
+                  :checked="
+                    searchConfig.filters.exclude.includes('replies')
+                      ? true
+                      : false
+                  "
                 />
                 <label for="replies">replies</label>
                 <input
@@ -106,7 +135,11 @@
                   id="retweets"
                   value="retweets"
                   v-model="searchConfig.filters.exclude"
-                  :checked="searchConfig.filters.exclude.includes('retweets')?true:false"
+                  :checked="
+                    searchConfig.filters.exclude.includes('retweets')
+                      ? true
+                      : false
+                  "
                 />
                 <label for="retweets">retweets</label>
               </td>
@@ -117,9 +150,13 @@
                 <input
                   type="checkbox"
                   id="optlist"
-                  value=1350805148612771841
+                  value="1350805148612771841"
                   v-model="searchConfig.filters.others"
-                  :checked="searchConfig.filters.others.includes('optlist')?true:false"
+                  :checked="
+                    searchConfig.filters.others.includes('optlist')
+                      ? true
+                      : false
+                  "
                 />
                 <label for="optlist">list</label>
               </td>
@@ -135,11 +172,14 @@
           type="text"
           value="Hello World"
           id="myInput"
-          style=" white-space: pre;"
-        >{{searchConfig.text}}</p>
+          style="white-space: pre"
+        >
+          {{ searchConfig.text }}
+        </p>
       </div>
     </div>
     <button id="copyBtn" v-on:touchstart="copy()">Copy</button>
+    <button id="twitter" v-on:touchstart="launchTW()">Twitter</button>
   </div>
 </template>
 <script>
@@ -165,7 +205,7 @@ export default {
         filters: {
           exclude: [],
           include: [],
-          others: []
+          others: [],
         },
       },
       history: null,
@@ -194,9 +234,7 @@ export default {
           .join(" ")}`;
         this.searchConfig.text = `${_since} \n${_until} ${
           _iFilter || _eFilter ? `\n${_iFilter} ${_eFilter}` : ""
-        } ${
-          _oFilter ? `\n${_oFilter}` : ""
-        }`;
+        } ${_oFilter ? `\n${_oFilter}` : ""}`;
       },
       deep: true,
     },
@@ -221,7 +259,12 @@ export default {
       if (_hj.date && _hj.date.year && _hj.date.month && _hj.date.day) {
         this.searchConfig.date = _hj.date;
       }
-      if (_hj.filters && _hj.filters.include && _hj.filters.exclude && _hj.filters.others) {
+      if (
+        _hj.filters &&
+        _hj.filters.include &&
+        _hj.filters.exclude &&
+        _hj.filters.others
+      ) {
         this.searchConfig.filters = _hj.filters;
       }
       if (_hj.timeRange && _hj.timeRange.start && _hj.timeRange.end) {
@@ -350,6 +393,9 @@ export default {
 
         // return result;
       }
+    },
+    launchTW() {
+      location.href = "twitter://search";
     },
   },
   computed: {
@@ -518,6 +564,24 @@ input {
 #copyBtn:active {
   background: #bd75cf;
   border-bottom: solid 0.05rem #ac49c5;
+  box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.22);
+}
+#twitter {
+  padding: 0.25em 0.5em;
+  color: #fff;
+  background: #00acee;
+  border: solid 0.05rem #00acee;
+  box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.22);
+
+  width: 60%;
+  height: 3.6rem;
+  margin: 1rem 1.6rem;
+  font-size: 2rem;
+  font-weight: 500;
+}
+#twitter:active {
+  background: #009edd;
+  border-bottom: solid 0.05rem #009edd;
   box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.22);
 }
 </style>
